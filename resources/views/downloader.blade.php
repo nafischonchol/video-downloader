@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Video Downloader – Facebook &amp; TikTok</title>
+    <title>Video Downloader – Facebook, TikTok &amp; YouTube</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -16,7 +16,7 @@
         body {
             font-family: 'Instrument Sans', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #1877f2 0%, #fe2c55 100%);
+            background: linear-gradient(135deg, #1877f2 0%, #fe2c55 50%, #e52d27 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -41,7 +41,7 @@
         .logo-icon {
             width: 64px;
             height: 64px;
-            background: linear-gradient(135deg, #1877f2 0%, #fe2c55 100%);
+            background: linear-gradient(135deg, #1877f2 0%, #fe2c55 50%, #e52d27 100%);
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
@@ -86,7 +86,7 @@
         }
 
         .url-input:focus {
-            border-color: #1877f2;
+            border-color: #e52d27;
         }
 
         .url-input.error {
@@ -95,7 +95,7 @@
 
         .btn-fetch {
             padding: 0.75rem 1.4rem;
-            background: #1877f2;
+            background: #e52d27;
             color: #fff;
             border: none;
             border-radius: 0.75rem;
@@ -108,7 +108,7 @@
         }
 
         .btn-fetch:hover {
-            background: #1565d8;
+            background: #c0211c;
         }
 
         .btn-fetch:active {
@@ -116,7 +116,7 @@
         }
 
         .btn-fetch:disabled {
-            background: #93c5fd;
+            background: #f8a7a5;
             cursor: not-allowed;
         }
 
@@ -145,7 +145,7 @@
             width: 40px;
             height: 40px;
             border: 4px solid #e5e7eb;
-            border-top-color: #1877f2;
+            border-top-color: #e52d27;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             display: inline-block;
@@ -158,8 +158,8 @@
         .result-card {
             display: none;
             margin-top: 1.75rem;
-            background: #f8faff;
-            border: 1px solid #dbeafe;
+            background: #f9f9f9;
+            border: 1px solid #e5e7eb;
             border-radius: 1rem;
             padding: 1.25rem;
         }
@@ -187,7 +187,7 @@
         .video-thumbnail-placeholder {
             width: 96px;
             height: 64px;
-            background: #dbeafe;
+            background: #fee2e2;
             border-radius: 0.5rem;
             flex-shrink: 0;
             display: flex;
@@ -198,7 +198,7 @@
         .video-thumbnail-placeholder svg {
             width: 32px;
             height: 32px;
-            fill: #1877f2;
+            fill: #e52d27;
             opacity: 0.5;
         }
 
@@ -239,12 +239,12 @@
         }
 
         .btn-hd {
-            background: #1877f2;
+            background: #e52d27;
             color: #fff;
         }
 
         .btn-hd:hover {
-            background: #1565d8;
+            background: #c0211c;
         }
 
         .btn-sd {
@@ -282,7 +282,7 @@
             display: none;
             text-align: center;
             font-size: 0.875rem;
-            color: #1877f2;
+            color: #e52d27;
             margin-top: 0.75rem;
             font-weight: 500;
         }
@@ -302,7 +302,7 @@
                 </svg>
             </div>
             <h1>Video Downloader</h1>
-            <p class="subtitle">Download Facebook &amp; TikTok videos in HD or SD</p>
+            <p class="subtitle">Download Facebook, TikTok &amp; YouTube videos in HD or SD</p>
         </div>
 
         <div class="input-group">
@@ -310,7 +310,7 @@
                 type="url"
                 id="videoUrl"
                 class="url-input"
-                placeholder="https://www.facebook.com/watch?v=… or https://www.tiktok.com/@user/video/…"
+                placeholder="https://www.facebook.com/… or https://www.tiktok.com/@user/video/… or https://www.youtube.com/watch?v=…"
                 autocomplete="off"
                 spellcheck="false"
             >
@@ -345,7 +345,7 @@
             <p id="downloadingMsg" class="downloading-msg">⏬ Download started…</p>
         </div>
 
-        <p class="hint">Only works with public Facebook and TikTok videos</p>
+        <p class="hint">Only works with public Facebook, TikTok, and YouTube videos</p>
     </div>
 
     <script>
@@ -367,7 +367,7 @@
             videoData = data;
 
             // Title
-            const defaultTitle = data.platform === 'tiktok' ? 'TikTok Video' : 'Facebook Video';
+            const defaultTitle = data.platform === 'tiktok' ? 'TikTok Video' : (data.platform === 'youtube' ? 'YouTube Video' : 'Facebook Video');
             document.getElementById('videoTitle').textContent = data.title || defaultTitle;
 
             // Thumbnail - use DOM methods to avoid XSS
@@ -411,7 +411,7 @@
             document.getElementById('fetchBtn').disabled = true;
 
             if (!url) {
-                setError('Please enter a Facebook or TikTok video URL.');
+                setError('Please enter a Facebook, TikTok, or YouTube video URL.');
                 document.getElementById('fetchBtn').disabled = false;
                 return;
             }

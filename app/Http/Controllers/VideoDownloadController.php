@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\YoutubeDownloadService;
 use FbMediaDownloader\Downloader;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -18,8 +20,8 @@ class VideoDownloadController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'url' => ['required', 'url', function ($attribute, $value, $fail) {
-                if (! preg_match('/facebook\.com|fb\.watch|tiktok\.com/i', $value)) {
-                    $fail('Please provide a valid Facebook or TikTok video URL.');
+                if (! preg_match('/facebook\.com|fb\.watch|tiktok\.com|youtube\.com|youtu\.be/i', $value)) {
+                    $fail('Please provide a valid Facebook, TikTok, or YouTube video URL.');
                 }
             }],
         ]);
@@ -30,35 +32,15 @@ class VideoDownloadController extends Controller
 
         $url = $request->input('url');
 
+        if ($this->isYouTubeUrl($url)) {
+            return $this->fetchYouTube($url);
+        }
+
         if (preg_match('/tiktok\.com/i', $url)) {
             return $this->fetchTikTok($url);
         }
 
         return $this->fetchFacebook($url);
-    }
-
-    private function fetchFacebook(string $url)
-    {
-        try {
-            $downloader = new Downloader;
-            $downloader->set_url($url)->fetch();
-
-            $hd = $downloader->get_hd_link() ?: null;
-            $sd = $downloader->get_sd_link() ?: null;
-
-            if (empty($hd) && empty($sd)) {
-                return response()->json(['error' => 'Could not extract video URL. Make sure the video is publicly accessible.'], 422);
-            }
-
-            return response()->json([
-                'hd' => $hd,
-                'sd' => $sd,
-                'title' => $downloader->extract_title() ?: 'Facebook Video',
-                'platform' => 'facebook',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to fetch the video. Please check the URL and try again.'], 422);
-        }
     }
 
     private function fetchTikTok(string $url)
@@ -123,7 +105,7 @@ class VideoDownloadController extends Controller
         $validator = Validator::make($request->all(), [
             'video_url' => ['required', 'url'],
             'quality' => ['required', 'in:hd,sd'],
-            'platform' => ['nullable', 'in:facebook,tiktok'],
+            'platform' => ['nullable', 'in:facebook,tiktok,youtube'],
         ]);
 
         if ($validator->fails()) {
@@ -136,14 +118,24 @@ class VideoDownloadController extends Controller
 
         $host = parse_url($videoUrl, PHP_URL_HOST);
 
-        // Allow Facebook and TikTok CDN URLs for security
-        $allowedPattern = '/fbcdn\.net|fbsbx\.com|facebook\.com|tiktok\.com|tiktokcdn\.com|tikwm\.com/i';
+        if ($host === false || $host === null) {
+            return response()->json(['error' => 'Invalid video URL.'], 422);
+        }
+
+        // Allow Facebook, TikTok, and YouTube CDN URLs for security
+        $allowedPattern = '/fbcdn\.net|fbsbx\.com|facebook\.com|tiktok\.com|tiktokcdn\.com|tikwm\.com|googlevideo\.com/i';
         if (! preg_match($allowedPattern, $host)) {
             return response()->json(['error' => 'Invalid video URL.'], 422);
         }
 
-        $prefix = $platform === 'tiktok' ? 'tiktok' : 'facebook';
-        $filename = $prefix.'_video_'.$quality.'_'.time().'.mp4';
+        if (preg_match('/googlevideo\.com/i', $host)) {
+            $platform = 'youtube';
+        } elseif (preg_match('/tiktok\.com|tiktokcdn\.com|tikwm\.com/i', $host)) {
+            $platform = 'tiktok';
+        } else {
+            $platform = 'facebook';
+        }
+        $filename = $platform.'_video_'.$quality.'_'.time().'.mp4';
 
         $ch = curl_init($videoUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
@@ -165,5 +157,56 @@ class VideoDownloadController extends Controller
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
             'X-Accel-Buffering' => 'no',
         ]);
+    }
+
+    private function isYouTubeUrl(string $url): bool
+    {
+        return (bool) preg_match('/youtube\.com|youtu\.be/i', parse_url($url, PHP_URL_HOST) ?: '');
+    }
+
+    private function fetchYouTube(string $url): JsonResponse
+    {
+        try {
+            $service = new YoutubeDownloadService;
+            $info = $service->getVideoInfo($url);
+
+            if (empty($info['hd']) && empty($info['sd'])) {
+                return response()->json(['error' => 'Could not extract video URL. Make sure the video is publicly accessible.'], 422);
+            }
+
+            return response()->json([
+                'hd' => $info['hd'],
+                'sd' => $info['sd'],
+                'title' => $info['title'],
+                'thumbnail' => $info['thumbnail'],
+                'platform' => 'youtube',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch the video. Please check the URL and try again.'], 422);
+        }
+    }
+
+    private function fetchFacebook(string $url): JsonResponse
+    {
+        try {
+            $downloader = new Downloader;
+            $downloader->set_url($url)->fetch();
+
+            $hd = $downloader->get_hd_link() ?: null;
+            $sd = $downloader->get_sd_link() ?: null;
+
+            if (empty($hd) && empty($sd)) {
+                return response()->json(['error' => 'Could not extract video URL. Make sure the video is publicly accessible.'], 422);
+            }
+
+            return response()->json([
+                'hd' => $hd,
+                'sd' => $sd,
+                'title' => $downloader->extract_title() ?: 'Facebook Video',
+                'platform' => 'facebook',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch the video. Please check the URL and try again.'], 422);
+        }
     }
 }

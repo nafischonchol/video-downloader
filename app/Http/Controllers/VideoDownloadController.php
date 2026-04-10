@@ -63,7 +63,7 @@ class VideoDownloadController extends Controller
         }
 
         $videoUrl = $request->input('video_url');
-        $quality = $request->input('quality');
+        $quality = in_array($request->input('quality'), ['hd', 'sd']) ? $request->input('quality') : 'sd';
 
         // Only allow Facebook CDN URLs for security
         if (! preg_match('/fbcdn\.net|fbsbx\.com|facebook\.com/i', parse_url($videoUrl, PHP_URL_HOST))) {
@@ -75,7 +75,6 @@ class VideoDownloadController extends Controller
         $ch = curl_init($videoUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
         curl_setopt($ch, CURLOPT_HEADER, false);
         // Write directly to output buffer

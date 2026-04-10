@@ -333,13 +333,13 @@
                     <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 16l-5-5 1.41-1.41L11 13.17V4h2v9.17l2.59-2.58L17 11zm-7 4h14v2H5z"/>
                     </svg>
-                    HD <span class="quality-badge">1080p</span>
+                    HD <span class="quality-badge">High</span>
                 </button>
                 <button id="sdBtn" class="btn-download btn-sd" onclick="triggerDownload('sd')">
                     <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 16l-5-5 1.41-1.41L11 13.17V4h2v9.17l2.59-2.58L17 11zm-7 4h14v2H5z"/>
                     </svg>
-                    SD <span class="quality-badge">480p</span>
+                    SD <span class="quality-badge">Low</span>
                 </button>
             </div>
             <p id="downloadingMsg" class="downloading-msg">⏬ Download started…</p>
@@ -369,12 +369,21 @@
             // Title
             document.getElementById('videoTitle').textContent = data.title || 'Facebook Video';
 
-            // Thumbnail
+            // Thumbnail - use DOM methods to avoid XSS
             const container = document.getElementById('thumbnailContainer');
+            container.innerHTML = '';
             if (data.thumbnail) {
-                container.innerHTML = `<img src="${escapeHtml(data.thumbnail)}" class="video-thumbnail" alt="Thumbnail" onerror="this.parentNode.innerHTML=placeholderSvg()">`;
+                const img = document.createElement('img');
+                img.src = data.thumbnail;
+                img.className = 'video-thumbnail';
+                img.alt = 'Thumbnail';
+                img.addEventListener('error', function () {
+                    container.innerHTML = '';
+                    container.appendChild(buildPlaceholder());
+                });
+                container.appendChild(img);
             } else {
-                container.innerHTML = placeholderSvg();
+                container.appendChild(buildPlaceholder());
             }
 
             // Buttons
@@ -387,16 +396,11 @@
             document.getElementById('resultCard').classList.add('visible');
         }
 
-        function placeholderSvg() {
-            return `<div class="video-thumbnail-placeholder">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/>
-                </svg>
-            </div>`;
-        }
-
-        function escapeHtml(str) {
-            return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        function buildPlaceholder() {
+            const div = document.createElement('div');
+            div.className = 'video-thumbnail-placeholder';
+            div.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>';
+            return div;
         }
 
         async function fetchVideoInfo() {

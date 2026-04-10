@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c57754c93ae34ac3b9b716a0fd2f2149",
+    "content-hash": "b92adf9ce6b6de1c624399e381ff92cd",
     "packages": [
         {
             "name": "brick/math",
@@ -3297,6 +3297,50 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.2"
             },
             "time": "2025-12-14T04:43:48+00:00"
+        },
+        {
+            "name": "sohagsrz/fbmediadownloader",
+            "version": "0.0.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Sohagsrz/facebook-media-downloader.git",
+                "reference": "ceb8369ca6cd918af447e2da34a5de8954cfd5d2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Sohagsrz/facebook-media-downloader/zipball/ceb8369ca6cd918af447e2da34a5de8954cfd5d2",
+                "reference": "ceb8369ca6cd918af447e2da34a5de8954cfd5d2",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "FbMediaDownloader\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "sohagsrz",
+                    "email": "mdsohagislam25@gmail.com"
+                }
+            ],
+            "description": "Facebook Video & Reels Downloader",
+            "homepage": "https://github.com/Sohagsrz/facebook-media-downloader",
+            "keywords": [
+                "downloader",
+                "facebook",
+                "reels",
+                "video"
+            ],
+            "support": {
+                "issues": "https://github.com/Sohagsrz/facebook-media-downloader/issues",
+                "source": "https://github.com/Sohagsrz/facebook-media-downloader/tree/0.0.7"
+            },
+            "time": "2024-05-26T02:26:20+00:00"
         },
         {
             "name": "symfony/clock",

@@ -97,8 +97,14 @@ class VideoDownloadController extends Controller
                 return response()->json(['error' => 'Could not extract TikTok video URL.'], 422);
             }
 
-            $author = isset($video['author']['nickname']) ? $video['author']['nickname'] : '';
-            $title = ! empty($video['title']) ? $video['title'] : ($author ? $author.' - TikTok Video' : 'TikTok Video');
+            $author = $video['author']['nickname'] ?? '';
+            if (! empty($video['title'])) {
+                $title = $video['title'];
+            } elseif ($author) {
+                $title = $author.' - TikTok Video';
+            } else {
+                $title = 'TikTok Video';
+            }
 
             return response()->json([
                 'hd' => $hd,

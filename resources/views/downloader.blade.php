@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Facebook Video Downloader</title>
+    <title>Video Downloader – Facebook &amp; TikTok</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -16,7 +16,7 @@
         body {
             font-family: 'Instrument Sans', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #1877f2 0%, #0d47a1 100%);
+            background: linear-gradient(135deg, #1877f2 0%, #fe2c55 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -41,7 +41,7 @@
         .logo-icon {
             width: 64px;
             height: 64px;
-            background: #1877f2;
+            background: linear-gradient(135deg, #1877f2 0%, #fe2c55 100%);
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
@@ -296,13 +296,13 @@
     <div class="card">
         <div class="logo-area">
             <div class="logo-icon">
-                <!-- Facebook video icon -->
+                <!-- Play / download icon -->
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22 12A10 10 0 1 0 12 22 10.011 10.011 0 0 0 22 12ZM2 12a10 10 0 1 1 10 10A10.011 10.011 0 0 1 2 12Zm10.5-5.5A.5.5 0 0 0 12 6H7.5A.5.5 0 0 0 7 6.5v11a.5.5 0 0 0 .5.5H12a5.006 5.006 0 0 0 5-5 5.006 5.006 0 0 0-4.5-4.987V6.5ZM9.5 9H12a1 1 0 0 1 0 2H9.5Zm0 7v-3H12a2 2 0 0 1 0 4Z"/>
+                    <path d="M12 16l-5-5 1.41-1.41L11 13.17V4h2v9.17l2.59-2.58L17 11zm-7 4h14v2H5z"/>
                 </svg>
             </div>
-            <h1>FB Video Downloader</h1>
-            <p class="subtitle">Paste a Facebook video link and download in HD or SD</p>
+            <h1>Video Downloader</h1>
+            <p class="subtitle">Download Facebook &amp; TikTok videos in HD or SD</p>
         </div>
 
         <div class="input-group">
@@ -310,7 +310,7 @@
                 type="url"
                 id="videoUrl"
                 class="url-input"
-                placeholder="https://www.facebook.com/watch?v=..."
+                placeholder="https://www.facebook.com/watch?v=… or https://www.tiktok.com/@user/video/…"
                 autocomplete="off"
                 spellcheck="false"
             >
@@ -345,7 +345,7 @@
             <p id="downloadingMsg" class="downloading-msg">⏬ Download started…</p>
         </div>
 
-        <p class="hint">Only works with public Facebook videos</p>
+        <p class="hint">Only works with public Facebook and TikTok videos</p>
     </div>
 
     <script>
@@ -367,7 +367,8 @@
             videoData = data;
 
             // Title
-            document.getElementById('videoTitle').textContent = data.title || 'Facebook Video';
+            const defaultTitle = data.platform === 'tiktok' ? 'TikTok Video' : 'Facebook Video';
+            document.getElementById('videoTitle').textContent = data.title || defaultTitle;
 
             // Thumbnail - use DOM methods to avoid XSS
             const container = document.getElementById('thumbnailContainer');
@@ -410,7 +411,7 @@
             document.getElementById('fetchBtn').disabled = true;
 
             if (!url) {
-                setError('Please enter a Facebook video URL.');
+                setError('Please enter a Facebook or TikTok video URL.');
                 document.getElementById('fetchBtn').disabled = false;
                 return;
             }
@@ -468,9 +469,15 @@
             qualityInput.name = 'quality';
             qualityInput.value = quality;
 
+            const platformInput = document.createElement('input');
+            platformInput.type = 'hidden';
+            platformInput.name = 'platform';
+            platformInput.value = videoData.platform || 'facebook';
+
             form.appendChild(csrfInput);
             form.appendChild(urlInput);
             form.appendChild(qualityInput);
+            form.appendChild(platformInput);
             document.body.appendChild(form);
             form.submit();
             document.body.removeChild(form);

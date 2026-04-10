@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Facebook Video Downloader</title>
+    <title>Video Downloader – YouTube &amp; Facebook</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -16,7 +16,7 @@
         body {
             font-family: 'Instrument Sans', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #1877f2 0%, #0d47a1 100%);
+            background: linear-gradient(135deg, #e52d27 0%, #b31217 50%, #1877f2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -41,7 +41,7 @@
         .logo-icon {
             width: 64px;
             height: 64px;
-            background: #1877f2;
+            background: linear-gradient(135deg, #e52d27 0%, #1877f2 100%);
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
@@ -86,7 +86,7 @@
         }
 
         .url-input:focus {
-            border-color: #1877f2;
+            border-color: #e52d27;
         }
 
         .url-input.error {
@@ -95,7 +95,7 @@
 
         .btn-fetch {
             padding: 0.75rem 1.4rem;
-            background: #1877f2;
+            background: #e52d27;
             color: #fff;
             border: none;
             border-radius: 0.75rem;
@@ -108,7 +108,7 @@
         }
 
         .btn-fetch:hover {
-            background: #1565d8;
+            background: #c0211c;
         }
 
         .btn-fetch:active {
@@ -116,7 +116,7 @@
         }
 
         .btn-fetch:disabled {
-            background: #93c5fd;
+            background: #f8a7a5;
             cursor: not-allowed;
         }
 
@@ -145,7 +145,7 @@
             width: 40px;
             height: 40px;
             border: 4px solid #e5e7eb;
-            border-top-color: #1877f2;
+            border-top-color: #e52d27;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             display: inline-block;
@@ -158,8 +158,8 @@
         .result-card {
             display: none;
             margin-top: 1.75rem;
-            background: #f8faff;
-            border: 1px solid #dbeafe;
+            background: #f9f9f9;
+            border: 1px solid #e5e7eb;
             border-radius: 1rem;
             padding: 1.25rem;
         }
@@ -187,7 +187,7 @@
         .video-thumbnail-placeholder {
             width: 96px;
             height: 64px;
-            background: #dbeafe;
+            background: #fee2e2;
             border-radius: 0.5rem;
             flex-shrink: 0;
             display: flex;
@@ -198,7 +198,7 @@
         .video-thumbnail-placeholder svg {
             width: 32px;
             height: 32px;
-            fill: #1877f2;
+            fill: #e52d27;
             opacity: 0.5;
         }
 
@@ -239,12 +239,12 @@
         }
 
         .btn-hd {
-            background: #1877f2;
+            background: #e52d27;
             color: #fff;
         }
 
         .btn-hd:hover {
-            background: #1565d8;
+            background: #c0211c;
         }
 
         .btn-sd {
@@ -282,7 +282,7 @@
             display: none;
             text-align: center;
             font-size: 0.875rem;
-            color: #1877f2;
+            color: #e52d27;
             margin-top: 0.75rem;
             font-weight: 500;
         }
@@ -296,13 +296,13 @@
     <div class="card">
         <div class="logo-area">
             <div class="logo-icon">
-                <!-- Facebook video icon -->
+                <!-- Play icon -->
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22 12A10 10 0 1 0 12 22 10.011 10.011 0 0 0 22 12ZM2 12a10 10 0 1 1 10 10A10.011 10.011 0 0 1 2 12Zm10.5-5.5A.5.5 0 0 0 12 6H7.5A.5.5 0 0 0 7 6.5v11a.5.5 0 0 0 .5.5H12a5.006 5.006 0 0 0 5-5 5.006 5.006 0 0 0-4.5-4.987V6.5ZM9.5 9H12a1 1 0 0 1 0 2H9.5Zm0 7v-3H12a2 2 0 0 1 0 4Z"/>
+                    <path d="M8 5v14l11-7z"/>
                 </svg>
             </div>
-            <h1>FB Video Downloader</h1>
-            <p class="subtitle">Paste a Facebook video link and download in HD or SD</p>
+            <h1>Video Downloader</h1>
+            <p class="subtitle">Download videos from YouTube and Facebook in HD or SD</p>
         </div>
 
         <div class="input-group">
@@ -310,7 +310,7 @@
                 type="url"
                 id="videoUrl"
                 class="url-input"
-                placeholder="https://www.facebook.com/watch?v=..."
+                placeholder="https://www.youtube.com/watch?v=... or https://www.facebook.com/..."
                 autocomplete="off"
                 spellcheck="false"
             >
@@ -345,7 +345,7 @@
             <p id="downloadingMsg" class="downloading-msg">⏬ Download started…</p>
         </div>
 
-        <p class="hint">Only works with public Facebook videos</p>
+        <p class="hint">Works with public YouTube and Facebook videos</p>
     </div>
 
     <script>
@@ -410,7 +410,7 @@
             document.getElementById('fetchBtn').disabled = true;
 
             if (!url) {
-                setError('Please enter a Facebook video URL.');
+                setError('Please enter a YouTube or Facebook video URL.');
                 document.getElementById('fetchBtn').disabled = false;
                 return;
             }

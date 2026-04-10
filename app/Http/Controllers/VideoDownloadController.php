@@ -53,7 +53,11 @@ class VideoDownloadController extends Controller
         $videoUrl = $request->input('video_url');
         $quality = in_array($request->input('quality'), ['hd', 'sd']) ? $request->input('quality') : 'sd';
 
-        $host = parse_url($videoUrl, PHP_URL_HOST) ?: '';
+        $host = parse_url($videoUrl, PHP_URL_HOST);
+
+        if ($host === false || $host === null) {
+            return response()->json(['error' => 'Invalid video URL.'], 422);
+        }
 
         // Allow Facebook CDN and YouTube CDN (googlevideo.com)
         if (! preg_match('/fbcdn\.net|fbsbx\.com|facebook\.com|googlevideo\.com/i', $host)) {

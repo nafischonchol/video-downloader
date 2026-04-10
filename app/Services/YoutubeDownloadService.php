@@ -110,15 +110,16 @@ class YoutubeDownloadService
             throw new RuntimeException('Failed to start yt-dlp process.');
         }
 
-        fclose($pipes[0]);
-
-        // Set non-blocking and read with a timeout
+        // Set non-blocking immediately after proc_open, before any reads
         stream_set_blocking($pipes[1], false);
         stream_set_blocking($pipes[2], false);
+
+        fclose($pipes[0]);
 
         $stdout = '';
         $stderr = '';
         $start = time();
+        $pipesClosed = false;
 
         while (true) {
             $read = [$pipes[1], $pipes[2]];
@@ -156,13 +157,16 @@ class YoutubeDownloadService
                 proc_terminate($process);
                 fclose($pipes[1]);
                 fclose($pipes[2]);
+                $pipesClosed = true;
                 proc_close($process);
                 throw new RuntimeException('yt-dlp process timed out.');
             }
         }
 
-        fclose($pipes[1]);
-        fclose($pipes[2]);
+        if (! $pipesClosed) {
+            fclose($pipes[1]);
+            fclose($pipes[2]);
+        }
         $exitCode = proc_close($process);
 
         if ($exitCode !== 0) {
